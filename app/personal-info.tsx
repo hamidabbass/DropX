@@ -13,11 +13,11 @@ import tw from "twrnc";
 import PhoneNumberInput from "@/components/common/PhoneInput";
 import DatePicker from "@/components/DatePicker";
 import Feather from "react-native-vector-icons/Feather";
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from "expo-router";
 
 export default function PersonalInfoScreen() {
   const [phone, setPhone] = useState("");
-  const navigation = useNavigation();
+  const router = useRouter();
   const [showCountryPicker, setShowCountryPicker] = useState(false);
   const [country, setCountry] = useState({
     code: "US",
@@ -101,8 +101,10 @@ export default function PersonalInfoScreen() {
         style={tw`bg-gray-100 rounded-lg px-4 py-3 mb-4`}
       />
 
-      {/* Continue */}
-      <TouchableOpacity onPress={() => navigation.navigate("Map")} style={tw`bg-green-600 rounded-full py-4 mt-6`}>
+      <TouchableOpacity
+        onPress={() => router.replace("/(tabs)/home")}
+        style={tw`bg-green-600 rounded-full py-4 mt-6`}
+      >
         <Text style={tw`text-center text-white font-bold`}>Continue</Text>
       </TouchableOpacity>
     </ScrollView>

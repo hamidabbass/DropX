@@ -38,10 +38,9 @@ export default function PhoneNumberInput({
 
   return (
     <>
-      <Text style={tw`text-sm text-black mb-2`}>Phone Number</Text>
-      <View style={tw`flex-row items-center bg-gray-100 rounded-lg mb-6`}>
+      <View style={tw`flex-row items-center border border-gray-300 rounded-lg mb-3`}>
         <TouchableOpacity
-          style={tw`flex-row items-center px-4 py-2 border-r border-gray-200`}
+          style={tw`flex-row items-center px-1 py-2 border-r border-gray-200`}
           onPress={() => setShowPicker(true)}
         >
           <Text style={tw`text-lg mr-2`}>{country.flag}</Text>

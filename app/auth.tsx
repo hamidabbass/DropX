@@ -41,9 +41,19 @@ export default function AuthScreen() {
       </View>
 
       <View style={tw`flex-row justify-center mt-4`}>
-        <Text style={tw`text-gray-400 text-xs`}>Privacy Policy</Text>
+        <TouchableOpacity onPress={() => router.push("/privacypolicy")}>
+          <Text style={tw`text-gray-400 text-xs underline`}>
+            Privacy Policy
+          </Text>
+        </TouchableOpacity>
+
         <Text style={tw`text-gray-400 mx-2`}>•</Text>
-        <Text style={tw`text-gray-400 text-xs`}>Terms of Service</Text>
+
+        <TouchableOpacity onPress={() => router.push("/termsofservice")}>
+          <Text style={tw`text-gray-400 text-xs underline`}>
+            Terms of Service
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );

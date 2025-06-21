@@ -118,7 +118,7 @@ export default function SignUpScreen() {
         style={tw`flex-1`}
       >
         <ScrollView
-          contentContainerStyle={tw`px-6 pb-10 pt-6`}
+          contentContainerStyle={tw`px-6 pb-10 -mt-10`}
           keyboardShouldPersistTaps="handled"
         >
           {/* Logo */}
@@ -129,12 +129,9 @@ export default function SignUpScreen() {
           />
 
           <Text
-            style={tw`text-2xl font-extrabold text-center text-black mb-2 -mt-20`}
+            style={tw`text-2xl font-medium text-center text-black mb-6 -mt-20`}
           >
-            Join DropX Today ✨
-          </Text>
-          <Text style={tw`text-gray-500 text-center mb-6`}>
-            Fill the form to create your account.
+            Become a DropX Driver Today
           </Text>
 
           <TextInput
@@ -215,7 +212,7 @@ export default function SignUpScreen() {
           <Text style={tw`text-sm text-gray-600 text-center`}>
             Already have an account?{" "}
             <Text
-              onPress={() => router.replace("/signin")}
+              onPress={() => router.replace("/personalinfo")}
               style={tw`text-black font-semibold`}
             >
               Login

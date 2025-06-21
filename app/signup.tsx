@@ -6,7 +6,7 @@ import { router } from "expo-router";
 
 export default function AuthScreen() {
   return (
-    <View style={tw`flex-1 bg-white px-6 justify-between pt-16 pb-6`}>
+    <View style={tw`flex-1 bg-white px-6 justify-between pb-6`}>
       <View style={tw`items-center`}>
         <Image
           source={require("../assets/images/dropX.png")}
@@ -15,7 +15,7 @@ export default function AuthScreen() {
         />
       </View>
 
-      <View style={tw`flex justify-center items-center flex-col -mt-40`}>
+      <View style={tw`flex justify-center items-center flex-col -mt-56`}>
         <Text style={tw`text-black text-2xl font-bold`}>
           Let’s Get Started!
         </Text>
@@ -24,26 +24,40 @@ export default function AuthScreen() {
         </Text>
       </View>
 
-      <View style={tw`w-full -mt-32`}>
+      <View style={tw`w-full -mt-40`}>
         <TouchableOpacity
-          onPress={() => router.replace("/signup-driver")}
+          onPress={() => router.replace("/signupdriver")}
           style={tw`bg-black py-4 rounded-full mb-3`}
         >
-          <Text style={tw`text-center text-white font-bold`}>Rgister as Driver</Text>
+          <Text style={tw`text-center text-white font-bold`}>
+            Rgister as Driver
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => router.replace("/signin")}
           style={tw`bg-gray-100 py-4 rounded-full`}
         >
-          <Text style={tw`text-center text-black font-bold`}>Register as Sender</Text>
+          <Text style={tw`text-center text-black font-bold`}>
+            Register as Sender
+          </Text>
         </TouchableOpacity>
       </View>
 
       <View style={tw`flex-row justify-center mt-4`}>
-        <Text style={tw`text-gray-400 text-xs`}>Privacy Policy</Text>
+        <TouchableOpacity onPress={() => router.push("/privacypolicy")}>
+          <Text style={tw`text-gray-400 text-xs underline`}>
+            Privacy Policy
+          </Text>
+        </TouchableOpacity>
+
         <Text style={tw`text-gray-400 mx-2`}>•</Text>
-        <Text style={tw`text-gray-400 text-xs`}>Terms of Service</Text>
+
+        <TouchableOpacity onPress={() => router.push("/termsofservice")}>
+          <Text style={tw`text-gray-400 text-xs underline`}>
+            Terms of Service
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );

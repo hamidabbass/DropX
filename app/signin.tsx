@@ -152,8 +152,8 @@ export default function SignInScreen() {
         <TouchableOpacity
           onPress={handleSubmit}
           disabled={!email || !password}
-          style={tw`w-full rounded-full py-4 ${
-            email && password ? "bg-green-600" : "bg-gray-300"
+          style={tw`py-3 rounded-full ${
+            email && password ? "bg-black" : "bg-gray-300"
           }`}
         >
           <Text style={tw`text-white text-center font-bold text-base`}>
@@ -164,7 +164,7 @@ export default function SignInScreen() {
       <Text style={tw`text-sm text-gray-600 text-center pb-10`}>
         Don't have an account?{" "}
         <Text
-          onPress={() => router.replace("/signup-driver")}
+          onPress={() => router.replace("/signupdriver")}
           style={tw`text-black font-semibold`}
         >
           Register

@@ -38,7 +38,7 @@ export default function PhoneNumberInput({
 
   return (
     <>
-      <View style={tw`flex-row items-center border border-gray-300 rounded-lg mb-3`}>
+      <View style={tw`flex-row items-center border border-gray-300 rounded-lg mb-2.5`}>
         <TouchableOpacity
           style={tw`flex-row items-center px-1 py-2 border-r border-gray-200`}
           onPress={() => setShowPicker(true)}

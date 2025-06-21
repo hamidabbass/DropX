@@ -35,7 +35,7 @@ export default function AuthScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => router.replace("/signin")}
+          onPress={() => router.replace("/signupsender")}
           style={tw`bg-gray-100 py-4 rounded-full`}
         >
           <Text style={tw`text-center text-black font-bold`}>

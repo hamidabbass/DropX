@@ -8,14 +8,12 @@ import {
   SafeAreaView,
   ScrollView,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import tw from "twrnc";
 import Icon from "react-native-vector-icons/Feather";
-import SocialButton from "@/components/common/SocialButton";
 import { useRouter } from "expo-router";
 import { API_BASE_URL } from "@/config/api";
-import { loginDriver } from '@/redux/authActions';
-
 
 export default function SignInScreen() {
   const router = useRouter();
@@ -24,44 +22,77 @@ export default function SignInScreen() {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [userType, setUserType] = useState<"driver" | "sender">("driver");
+  const [loading, setLoading] = useState(false);
+
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  const validateEmail = (text: string) => {
+    setEmail(text);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(text)) {
+      setEmailError("Enter a valid email address");
+    } else {
+      setEmailError("");
+    }
+  };
+
+  const validatePassword = (text: string) => {
+    setPassword(text);
+    if (text.length < 6) {
+      setPasswordError("Password must be at least 6 characters");
+    } else {
+      setPasswordError("");
+    }
+  };
+
+  const isFormValid = () => {
+    return (
+      email &&
+      password &&
+      emailError === "" &&
+      passwordError === ""
+    );
+  };
 
   const handleSubmit = async () => {
-  if (!email || !password) {
-    Alert.alert("Missing Fields", "Please enter email and password");
-    return;
-  }
-
-  try {
-    const response = await fetch (`${API_BASE_URL}/accounts/driver-login/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data?.detail || "Login failed");
+    if (!isFormValid()) {
+      Alert.alert("Invalid Input", "Please fix the errors before submitting.");
+      return;
     }
 
-    console.log("Login successful:", data);
+    const loginEndpoint =
+      userType === "driver"
+        ? `${API_BASE_URL}/accounts/driver-login/`
+        : `${API_BASE_URL}/accounts/sender-login/`;
 
-    // ✅ Optional: store token in async storage or context here if provided
-    // await AsyncStorage.setItem('accessToken', data.token);
+    setLoading(true);
+    try {
+      const response = await fetch(loginEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    // Redirect to dashboard
-    router.push("/(tabs)/home");
-  } catch (error: any) {
-    console.error("Login error:", error.message);
-    Alert.alert("Login Failed", error.message);
-  }
-};
+      const data = await response.json();
 
+      if (!response.ok) {
+        throw new Error(data?.detail || "Login failed");
+      }
+
+      console.log("Login successful:", data);
+
+      // Redirect to respective dashboard
+      router.push("/(tabs)/home");
+    } catch (error: any) {
+      console.error("Login error:", error.message);
+      Alert.alert("Login Failed", error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={tw`flex-1 bg-white`}>
@@ -69,11 +100,13 @@ export default function SignInScreen() {
         contentContainerStyle={tw`px-6 pt-6 pb-6`}
         keyboardShouldPersistTaps="handled"
       >
+        {/* Logo */}
         <Image
           source={require("../assets/images/dropX.png")}
           style={tw`size-56 mx-auto`}
           resizeMode="contain"
         />
+
         <Text style={tw`text-2xl font-bold text-center text-black mb-2 -mt-16`}>
           Welcome Back 👋
         </Text>
@@ -113,23 +146,34 @@ export default function SignInScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Email Input */}
+        {/* Email */}
         <TextInput
           placeholder="Email"
           keyboardType="email-address"
+          autoCapitalize="none"
           value={email}
-          onChangeText={setEmail}
-          style={tw`border border-gray-300 rounded-lg p-3 mb-4`}
+          onChangeText={validateEmail}
+          style={tw`border border-gray-300 rounded-lg p-3 mb-1`}
         />
+        {emailError ? (
+          <Text style={tw`text-red-500 text-xs mb-3`}>{emailError}</Text>
+        ) : (
+          <View style={tw`mb-3`} />
+        )}
 
-        {/* Password Input */}
+        {/* Password */}
         <TextInput
           placeholder="Password"
           secureTextEntry
           value={password}
-          onChangeText={setPassword}
-          style={tw`border border-gray-300 rounded-lg p-3 mb-4`}
+          onChangeText={validatePassword}
+          style={tw`border border-gray-300 rounded-lg p-3 mb-1`}
         />
+        {passwordError ? (
+          <Text style={tw`text-red-500 text-xs mb-3`}>{passwordError}</Text>
+        ) : (
+          <View style={tw`mb-3`} />
+        )}
 
         {/* Remember Me */}
         <TouchableOpacity
@@ -147,24 +191,34 @@ export default function SignInScreen() {
         </TouchableOpacity>
       </ScrollView>
 
-      {/* Submit Button */}
+      {/* Login Button */}
       <View style={tw`px-6 pb-6 -mt-20`}>
         <TouchableOpacity
           onPress={handleSubmit}
-          disabled={!email || !password}
+          disabled={!isFormValid() || loading}
           style={tw`py-3 rounded-full ${
-            email && password ? "bg-black" : "bg-gray-300"
-          }`}
+            isFormValid() && !loading ? "bg-black" : "bg-gray-300"
+          } flex items-center`}
         >
-          <Text style={tw`text-white text-center font-bold text-base`}>
-            Login
-          </Text>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={tw`text-white text-center font-bold text-base`}>
+              Login
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
+
+      {/* Register Link */}
       <Text style={tw`text-sm text-gray-600 text-center pb-10`}>
-        Don't have an account?{" "}
+        Don’t have an account?{" "}
         <Text
-          onPress={() => router.replace("/signupdriver")}
+          onPress={() =>
+            router.replace(
+              userType === "driver" ? "/signupdriver" : "/signupsender"
+            )
+          }
           style={tw`text-black font-semibold`}
         >
           Register

@@ -33,6 +33,11 @@ export const routeTitles: Record<
     showBack: true,
     fallbackRoute: '/signup', 
   },
+  signupsender: {
+    title: 'Register Sender',
+    showBack: true,
+    fallbackRoute: '/signup', 
+  },
   privacypolicy: {
     title: 'Privacy Policy',
     showBack: true,
@@ -44,8 +49,7 @@ export const routeTitles: Record<
     fallbackRoute: '/signup', 
   },
   personalinfo: {
-    title: 'Driver Verification',
-    showBack: true,
-    fallbackRoute: '/signup', 
+    title: '',
+    showBack: false,
   },
 };

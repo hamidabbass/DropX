@@ -11,21 +11,28 @@ import {
 } from "react-native";
 import tw from "twrnc";
 import PhoneNumberInput from "@/components/common/PhoneInput";
-import DatePicker from "@/components/DatePicker";
 import Feather from "react-native-vector-icons/Feather";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 
 export default function PersonalInfoScreen() {
-  const [phone, setPhone] = useState("");
   const router = useRouter();
+  const { fullName, email, phone: routePhone, address: routeAddress, licenseNumber: routeLicense } = useLocalSearchParams();
+
+  const [image, setImage] = useState(null);
+
+  const [name, setName] = useState(typeof fullName === "string" ? fullName : "");
+const [emailVal, setEmailVal] = useState(typeof email === "string" ? email : "");
+const [phone, setPhone] = useState(typeof routePhone === "string" ? routePhone : "");
+const [address, setAddress] = useState(typeof routeAddress === "string" ? routeAddress : "");
+const [licenseNumber, setLicenseNumber] = useState(typeof routeLicense === "string" ? routeLicense : "");
+
   const [showCountryPicker, setShowCountryPicker] = useState(false);
   const [country, setCountry] = useState({
-    code: "US",
-    dial_code: "+1",
-    flag: "🇺🇸",
-    name: "United States",
+    code: "PK",
+    dial_code: "+92",
+    flag: "🇵🇰",
+    name: "Pakistan",
   });
-  const [image, setImage] = useState(null);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -42,41 +49,39 @@ export default function PersonalInfoScreen() {
 
   return (
     <ScrollView style={tw`flex-1 bg-white px-6 py-6`}>
-      <Text style={tw`text-xl font-bold mb-4`}>Fill Personal Info</Text>
-
-      <View style={tw`items-center mb-6`}>
+      <View style={tw`items-center mb-8 mt-4`}>
         <Pressable onPress={pickImage} style={tw`relative`}>
           {image ? (
-            <Image source={{ uri: image }} style={tw`w-24 h-24 rounded-full`} />
+            <Image source={{ uri: image }} style={tw`size-44 rounded-full`} />
           ) : (
-            <View
-              style={tw`w-24 h-24 bg-gray-200 rounded-full items-center justify-center`}
-            >
-              <Text style={tw`text-2xl`}>👤</Text>
+            <View style={tw`size-44 bg-gray-200 rounded-full items-center justify-center`}>
+              <Text style={tw`text-5xl`}>👤</Text>
             </View>
           )}
 
           <View
-            style={tw`absolute bottom-1 right-1 bg-green-600 size-6 rounded-full items-center justify-center border-2 border-white`}
+            style={tw`absolute bottom-1 right-1 bg-green-600 size-8 rounded-full items-center justify-center border-2 border-white`}
           >
-            <Feather name="edit-2" size={14} color="#fff" />
+            <Feather name="edit-2" size={18} color="#fff" />
           </View>
         </Pressable>
       </View>
 
-      {/* Full Name */}
       <Text style={tw`text-sm text-black mb-1`}>Full Name</Text>
       <TextInput
+        value={name}
+        onChangeText={setName}
         placeholder="Full Name"
         style={tw`bg-gray-100 rounded-lg px-4 py-3 mb-4`}
       />
 
-      {/* Email */}
       <Text style={tw`text-sm text-black mb-1`}>Email</Text>
       <TextInput
+        value={emailVal}
+        onChangeText={setEmailVal}
         placeholder="Email"
-        style={tw`bg-gray-100 rounded-lg px-4 py-3 mb-4`}
         keyboardType="email-address"
+        style={tw`bg-gray-100 rounded-lg px-4 py-3 mb-4`}
       />
 
       <PhoneNumberInput
@@ -88,22 +93,25 @@ export default function PersonalInfoScreen() {
         setShowPicker={setShowCountryPicker}
       />
 
-      {/* Gender */}
-      <Text style={tw`text-sm text-black mb-1`}>Gender</Text>
+      <Text style={tw`text-sm text-black mb-1`}>Address</Text>
       <TextInput
-        placeholder="Gender"
+        value={address}
+        onChangeText={setAddress}
+        placeholder="Address"
         style={tw`bg-gray-100 rounded-lg px-4 py-3 mb-4`}
       />
 
-      <Text style={tw`text-sm text-black mb-1`}>Date</Text>
+      <Text style={tw`text-sm text-black mb-1`}>License Number</Text>
       <TextInput
-        placeholder="dd/mm/yy"
+        value={licenseNumber}
+        onChangeText={setLicenseNumber}
+        placeholder="License Number"
         style={tw`bg-gray-100 rounded-lg px-4 py-3 mb-4`}
       />
 
       <TouchableOpacity
         onPress={() => router.replace("/(tabs)/home")}
-        style={tw`bg-green-600 rounded-full py-4 mt-6`}
+        style={tw`bg-black rounded-full py-4 mt-6`}
       >
         <Text style={tw`text-center text-white font-bold`}>Continue</Text>
       </TouchableOpacity>

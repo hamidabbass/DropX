@@ -43,4 +43,9 @@ export const routeTitles: Record<
     showBack: true,
     fallbackRoute: '/signup', 
   },
+  personalinfo: {
+    title: 'Driver Verification',
+    showBack: true,
+    fallbackRoute: '/signup', 
+  },
 };

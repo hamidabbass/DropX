@@ -1,5 +1,5 @@
-import LiveTrackingMapWithAvatar from '@/components/LiveTrackingMap';
+import PersonalInfo from '@/app/personalinfo';
 
 export default function HomeScreen() {
-  return <LiveTrackingMapWithAvatar />;
+  return <PersonalInfo />;
 }

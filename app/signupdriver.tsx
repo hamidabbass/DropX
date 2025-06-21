@@ -1,3 +1,5 @@
+// SignUpScreen.tsx
+
 import React, { useState } from "react";
 import {
   View,
@@ -15,8 +17,6 @@ import tw from "twrnc";
 import Icon from "react-native-vector-icons/Feather";
 import { useRouter } from "expo-router";
 import PhoneNumberInput from "@/components/common/PhoneInput";
-import SocialButton from "@/components/common/SocialButton";
-import type { CountryItem } from "react-native-country-codes-picker";
 import { API_BASE_URL } from "@/config/api";
 
 export default function SignUpScreen() {
@@ -30,7 +30,6 @@ export default function SignUpScreen() {
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [agreed, setAgreed] = useState(false);
-
   const [showCountryPicker, setShowCountryPicker] = useState(false);
   const [country, setCountry] = useState({
     code: "PK",
@@ -90,25 +89,23 @@ export default function SignUpScreen() {
         throw new Error(data?.detail || "Registration failed.");
       }
 
-      console.log("✅ Registration successful:", data);
       Alert.alert("Success", "Account created successfully!");
 
-      // Redirect to OTP or login screen
-      router.push({ pathname: "/signin", params: { phone: fullPhone } });
+      // Push to profile screen with user data
+      router.push({
+        pathname: "/personalinfo",
+        params: {
+          fullName: `${firstName} ${lastName}`,
+          email,
+          phone: fullPhone,
+          address: address,
+          licenseNumber: licenseNumber
+        },
+      });
     } catch (err: any) {
       console.error("❌ Registration error:", err.message);
       Alert.alert("Registration Failed", err.message);
     }
-  };
-
-  const handleCountrySelect = (item: CountryItem) => {
-    setCountry({
-      code: item.code,
-      dial_code: item.dial_code,
-      flag: item.flag,
-      name: item.name,
-    });
-    setShowCountryPicker(false);
   };
 
   return (
@@ -121,17 +118,15 @@ export default function SignUpScreen() {
           contentContainerStyle={tw`px-6 pb-10 -mt-10`}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Logo */}
           <Image
             source={require("../assets/images/dropX.png")}
             style={tw`size-56 mx-auto`}
             resizeMode="contain"
           />
-
           <Text
-            style={tw`text-2xl font-medium text-center text-black mb-6 -mt-20`}
+            style={tw`text-xl font-bold text-center text-black mb-6 -mt-20`}
           >
-            Become a DropX Driver Today
+            Become a DropX Driver
           </Text>
 
           <TextInput
@@ -164,7 +159,7 @@ export default function SignUpScreen() {
           />
 
           <TextInput
-            placeholder="Address"
+            placeholder="Address *"
             value={address}
             onChangeText={setAddress}
             style={tw`border border-gray-300 rounded-lg p-3 mb-3`}
@@ -212,7 +207,7 @@ export default function SignUpScreen() {
           <Text style={tw`text-sm text-gray-600 text-center`}>
             Already have an account?{" "}
             <Text
-              onPress={() => router.replace("/personalinfo")}
+              onPress={() => router.replace("/signin")}
               style={tw`text-black font-semibold`}
             >
               Login

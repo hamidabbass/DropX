@@ -17,11 +17,6 @@ export default function AuthScreen() {
         <Text style={tw`text-gray-500 mt-2`}>Let’s dive in into your account</Text>
       </View>
 
-      <View style={tw`w-full mt-10`}>
-        <SocialButton label="Continue with Google" icon={require('../assets/svgs/google.svg')} />
-        <SocialButton label="Continue with Apple" icon={require('../assets/svgs/apple.svg')} />
-      </View>
-
       <View style={tw`w-full mt-4`}>
         <TouchableOpacity onPress={() => router.replace('/signup')} style={tw`bg-black py-4 rounded-full mb-3`}>
           <Text style={tw`text-center text-white font-bold`}>Sign up</Text>

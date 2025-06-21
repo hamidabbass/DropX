@@ -14,7 +14,7 @@ export default function SplashScreen() {
   }, []);
 
   return (
-    <View style={tw`flex-1 bg-green-500 items-center justify-center`}>
+    <View style={tw`flex-1 bg-black items-center justify-center`}>
       {/* Logo */}
       {/* <Image
         source={require('../assets/logo.png')} // replace with your actual logo path
@@ -23,7 +23,7 @@ export default function SplashScreen() {
       /> */}
 
       {/* App Name */}
-      <Text style={tw`text-white text-xl font-semibold`}>GoRide</Text>
+      <Text style={tw`text-white text-xl font-semibold`}>DropX</Text>
 
       {/* Spinner */}
       <View style={tw`absolute bottom-12`}>

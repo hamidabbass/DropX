@@ -17,7 +17,7 @@ export default function OnboardingStepTwo() {
 
       <View style={tw`px-6 items-center`}>
         <Text style={tw`text-black text-xl font-bold text-center`}>
-          Choose Your Ride –{'\n'}Tailored to Your Needs
+          Choose Your Delivery –{'\n'}Tailored to Your Needs
         </Text>
         <Text style={tw`text-gray-600 text-sm text-center mt-2`}>
           Select your preferred mode of transportation – motorbike / scooter, or car – and order a ride with just a few taps.

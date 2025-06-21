@@ -21,7 +21,7 @@ export default function OnboardingStepThree() {
           Secure Payments &{'\n'}Seamless Transactions
         </Text>
         <Text style={tw`text-gray-600 text-sm text-center mt-2`}>
-          Say hello to convenience payments. Pay for your rides securely using GoRide Wallet, PayPal, Google Pay, Apple Pay, card, or cash.
+          Say hello to convenience payments. Pay for your deliveries securely using DropX easypaisa, jazzcash or cash.
         </Text>
       </View>
 

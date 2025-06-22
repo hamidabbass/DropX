@@ -91,22 +91,47 @@ export default function SignUpScreen() {
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/accounts/driver-register/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const registerResponse = await fetch(
+        `${API_BASE_URL}/accounts/driver-register/`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
 
-      const data = await response.json();
+      const registerData = await registerResponse.json();
 
-      if (!response.ok) {
-        throw new Error(data?.detail || "Registration failed.");
+      if (!registerResponse.ok) {
+        throw new Error(registerData?.detail || "Registration failed.");
       }
 
-      Alert.alert("Success", "Account created successfully!");
+      // Auto login
+      const loginResponse = await fetch(
+        `${API_BASE_URL}/accounts/driver-login/`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        }
+      );
+
+      const loginData = await loginResponse.json();
+
+      if (!loginResponse.ok) {
+        throw new Error(
+          loginData?.detail || "Login failed after registration."
+        );
+      }
+
+      // Optional: store token
+      // await AsyncStorage.setItem("accessToken", loginData.access);
+      // await AsyncStorage.setItem("refreshToken", loginData.refresh);
+
+      Alert.alert("Success", "Account created and logged in!");
 
       router.push({
-        pathname: "/personalinfo",
+        pathname: "/driverinfo",
         params: {
           fullName: `${firstName} ${lastName}`,
           email,
@@ -116,8 +141,8 @@ export default function SignUpScreen() {
         },
       });
     } catch (err: any) {
-      console.error("❌ Registration error:", err.message);
-      Alert.alert("Registration Failed", err.message);
+      console.error("❌ Error:", err.message);
+      Alert.alert("Error", err.message);
     }
   };
 
@@ -149,7 +174,9 @@ export default function SignUpScreen() {
             style={tw`size-56 mx-auto`}
             resizeMode="contain"
           />
-          <Text style={tw`text-xl font-bold text-center text-black mb-6 -mt-20`}>
+          <Text
+            style={tw`text-xl font-bold text-center text-black mb-6 -mt-20`}
+          >
             Become a DropX Driver
           </Text>
 
@@ -158,24 +185,31 @@ export default function SignUpScreen() {
             value={firstName}
             onChangeText={(text) => {
               setFirstName(text);
-              if (errors.firstName) setErrors((prev) => ({ ...prev, firstName: "" }));
+              if (errors.firstName)
+                setErrors((prev) => ({ ...prev, firstName: "" }));
             }}
             style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}
           />
-          {errors.firstName && <Text style={tw`text-red-500 text-xs mb-2`}>{errors.firstName}</Text>}
+          {errors.firstName && (
+            <Text style={tw`text-red-500 text-xs mb-2`}>
+              {errors.firstName}
+            </Text>
+          )}
 
           <TextInput
             placeholder="Last Name *"
             value={lastName}
             onChangeText={(text) => {
               setLastName(text);
-              if (errors.lastName) setErrors((prev) => ({ ...prev, lastName: "" }));
+              if (errors.lastName)
+                setErrors((prev) => ({ ...prev, lastName: "" }));
             }}
             style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}
           />
-          {errors.lastName && <Text style={tw`text-red-500 text-xs mb-2`}>{errors.lastName}</Text>}
+          {errors.lastName && (
+            <Text style={tw`text-red-500 text-xs mb-2`}>{errors.lastName}</Text>
+          )}
 
-          {/* Email */}
           <TextInput
             placeholder="Email *"
             value={email}
@@ -187,9 +221,10 @@ export default function SignUpScreen() {
             }}
             style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}
           />
-          {errors.email && <Text style={tw`text-red-500 text-xs mb-2`}>{errors.email}</Text>}
+          {errors.email && (
+            <Text style={tw`text-red-500 text-xs mb-2`}>{errors.email}</Text>
+          )}
 
-          {/* Phone Number */}
           <PhoneNumberInput
             phone={phone}
             setPhone={(text) => {
@@ -201,32 +236,38 @@ export default function SignUpScreen() {
             showPicker={showCountryPicker}
             setShowPicker={setShowCountryPicker}
           />
-          {errors.phone && <Text style={tw`text-red-500 text-xs mb-2`}>{errors.phone}</Text>}
+          {errors.phone && (
+            <Text style={tw`text-red-500 text-xs mb-2`}>{errors.phone}</Text>
+          )}
 
-          {/* Address */}
           <TextInput
             placeholder="Address *"
             value={address}
             onChangeText={(text) => {
               setAddress(text);
-              if (errors.address) setErrors((prev) => ({ ...prev, address: "" }));
+              if (errors.address)
+                setErrors((prev) => ({ ...prev, address: "" }));
             }}
             style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}
           />
-          {errors.address && <Text style={tw`text-red-500 text-xs mb-2`}>{errors.address}</Text>}
+          {errors.address && (
+            <Text style={tw`text-red-500 text-xs mb-2`}>{errors.address}</Text>
+          )}
 
-          {/* License Number */}
           <TextInput
             placeholder="License Number *"
             value={licenseNumber}
             onChangeText={(text) => {
               setLicenseNumber(text);
-              if (errors.licenseNumber) setErrors((prev) => ({ ...prev, licenseNumber: "" }));
+              if (errors.licenseNumber)
+                setErrors((prev) => ({ ...prev, licenseNumber: "" }));
             }}
             style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}
           />
           {errors.licenseNumber && (
-            <Text style={tw`text-red-500 text-xs mb-2`}>{errors.licenseNumber}</Text>
+            <Text style={tw`text-red-500 text-xs mb-2`}>
+              {errors.licenseNumber}
+            </Text>
           )}
 
           <TextInput
@@ -235,7 +276,8 @@ export default function SignUpScreen() {
             value={password}
             onChangeText={(text) => {
               setPassword(text);
-              if (errors.password) setErrors((prev) => ({ ...prev, password: "" }));
+              if (errors.password)
+                setErrors((prev) => ({ ...prev, password: "" }));
             }}
             style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}
           />
@@ -259,14 +301,15 @@ export default function SignUpScreen() {
             </View>
             <Text style={tw`text-sm text-gray-600`}>
               I agree to{" "}
-              <Text style={tw`text-black font-semibold`}>Terms & Conditions</Text>
+              <Text style={tw`text-black font-semibold`}>
+                Terms & Conditions
+              </Text>
             </Text>
           </TouchableOpacity>
           {errors.agreed && (
             <Text style={tw`text-red-500 text-xs mb-2`}>{errors.agreed}</Text>
           )}
 
-          {/* Register Button */}
           <TouchableOpacity
             onPress={handleSubmit}
             disabled={!isFormValid()}

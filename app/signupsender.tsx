@@ -31,10 +31,10 @@ export default function SignUpScreen() {
 
   const [showCountryPicker, setShowCountryPicker] = useState(false);
   const [country, setCountry] = useState({
-    code: "US",
-    dial_code: "+1",
-    flag: "🇺🇸",
-    name: "United States",
+    code: "PK",
+    dial_code: "+92",
+    flag: "🇵🇰",
+    name: "Pakistan",
   });
 
   const validateForm = () => {
@@ -113,7 +113,10 @@ export default function SignUpScreen() {
       }
 
       Alert.alert("Success", "You’ve registered successfully!");
-      router.push({ pathname: "/personalinfo", params: { phone: fullPhoneNumber } });
+      router.push({
+        pathname: "/personalinfo",
+        params: { phone: fullPhoneNumber },
+      });
     } catch (error: any) {
       Alert.alert(
         "Registration Error",

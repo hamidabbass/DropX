@@ -48,7 +48,7 @@ export const routeTitles: Record<
     showBack: true,
     fallbackRoute: '/signup', 
   },
-  personalinfo: {
+  driverinfo: {
     title: '',
     showBack: false,
   },

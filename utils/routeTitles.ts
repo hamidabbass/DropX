@@ -1,4 +1,3 @@
-import TermsOfService from "@/app/termsofservice";
 
 export type RoutePath =
   | '/onboarding'
@@ -49,7 +48,15 @@ export const routeTitles: Record<
     fallbackRoute: '/signup', 
   },
   driverinfo: {
+    title: 'Driver',
+    showBack: false,
+  },
+  home: {
     title: '',
     showBack: false,
   },
+  account: {
+    title: 'Driver Info',
+    showBack: false,
+  }
 };

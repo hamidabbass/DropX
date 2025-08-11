@@ -1,9 +1,9 @@
-import { View, Text, TouchableOpacity } from 'react-native';
-import { useRouter, useSegments } from 'expo-router';
-import { useNavigation } from '@react-navigation/native';
-import { Feather } from '@expo/vector-icons';
-import tw from 'twrnc';
 import { routeTitles } from '@/utils/routeTitles';
+import { Feather } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { useRouter, useSegments } from 'expo-router';
+import { Text, TouchableOpacity, View } from 'react-native';
+import tw from 'twrnc';
 
 export default function HeaderBar() {
   const router = useRouter();
@@ -24,7 +24,7 @@ export default function HeaderBar() {
   };
 
   return (
-    <View style={tw`pt-12 pb-4 px-5  flex-row items-center border-b-[0.5px] border-gray-400`}>
+    <View style={tw`py-4 px-5 flex-row items-center border-b-[0.5px] border-gray-400 bg-white`}>
       {config.showBack && (
         <TouchableOpacity onPress={handleBack}>
           <Feather name="arrow-left" size={24} color="#000" />

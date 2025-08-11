@@ -32,7 +32,8 @@ export default function OnboardingStepThree() {
       <View style={tw`w-full px-6 mt-6`}>
         <TouchableOpacity
           style={tw`bg-black py-3 rounded-xl`}
-          onPress={() => router.replace('/auth')} // Navigate into the app
+          // onPress={() => router.replace('/auth')}
+          onPress={() => router.replace('/(tabs)/home')}
         >
           <Text style={tw`text-center text-white font-semibold`}>Let’s Get Started</Text>
         </TouchableOpacity>

@@ -11,6 +11,11 @@ export default function HeaderBar() {
   const segments = useSegments();
   const routeName = segments[segments.length - 1];
 
+  // Do not render header or get routeTitle for splash or onboarding screens
+  if (routeName === 'splash' || routeName === 'onboarding') {
+    return null;
+  }
+
   const config = routeTitles[routeName] || { title: '', showBack: true };
 
   if (!config.title && !config.showBack) return null;

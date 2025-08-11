@@ -16,7 +16,13 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyAk9Ir2sb_GvrLxtEUUJCupUdBYS5PnwO8"
+        }
+      },
+      "package": "com.durani.dropX"
     },
     "web": {
       "bundler": "metro",
@@ -34,10 +40,18 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "9dde144e-c79b-4456-901a-6e8aeefa5799"
+      }
     }
   }
 }

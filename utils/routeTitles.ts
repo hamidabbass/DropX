@@ -1,3 +1,4 @@
+import RideOptionsScreen from "@/app/RideOptionsScreen";
 
 export type RoutePath =
   | '/onboarding'
@@ -58,5 +59,9 @@ export const routeTitles: Record<
   account: {
     title: 'Driver Info',
     showBack: false,
-  }
+  },
+  rideoptionsscreen: {
+    title: '',
+    showBack: false,
+  },
 };

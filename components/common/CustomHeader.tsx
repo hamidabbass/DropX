@@ -24,7 +24,7 @@ export default function HeaderBar() {
   };
 
   return (
-    <View style={tw`pt-12 pb-4 px-5  flex-row items-center border-b-[0.5px] border-gray-400`}>
+    <View style={tw`pt-10 pb-4 px-5  flex-row items-center border-b-[0.5px] border-gray-400`}>
       {config.showBack && (
         <TouchableOpacity onPress={handleBack}>
           <Feather name="arrow-left" size={24} color="#000" />

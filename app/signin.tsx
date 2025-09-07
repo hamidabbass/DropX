@@ -10,6 +10,7 @@ import {
   Image,
   ActivityIndicator,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import tw from "twrnc";
 import Icon from "react-native-vector-icons/Feather";
 import { useRouter } from "expo-router";
@@ -30,29 +31,16 @@ export default function SignInScreen() {
   const validateEmail = (text: string) => {
     setEmail(text);
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(text)) {
-      setEmailError("Enter a valid email address");
-    } else {
-      setEmailError("");
-    }
+    setEmailError(emailRegex.test(text) ? "" : "Enter a valid email address");
   };
 
   const validatePassword = (text: string) => {
     setPassword(text);
-    if (text.length < 6) {
-      setPasswordError("Password must be at least 6 characters");
-    } else {
-      setPasswordError("");
-    }
+    setPasswordError(text.length >= 6 ? "" : "Password must be at least 6 characters");
   };
 
   const isFormValid = () => {
-    return (
-      email &&
-      password &&
-      emailError === "" &&
-      passwordError === ""
-    );
+    return email && password && emailError === "" && passwordError === "";
   };
 
   const handleSubmit = async () => {
@@ -70,9 +58,7 @@ export default function SignInScreen() {
     try {
       const response = await fetch(loginEndpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
@@ -82,9 +68,14 @@ export default function SignInScreen() {
         throw new Error(data?.detail || "Login failed");
       }
 
-      console.log("Login successful:", data);
+      // ✅ Save JWT to AsyncStorage
+      await AsyncStorage.setItem("access", data.access);
+      await AsyncStorage.setItem("refresh", data.refresh);
+      await AsyncStorage.setItem("userType", userType);
 
-      // Redirect to respective dashboard
+      console.log("✅ Access Token Stored:", data.access);
+
+      // ✅ Navigate only after storing tokens
       router.push("/(tabs)/home");
     } catch (error: any) {
       console.error("Login error:", error.message);
@@ -96,16 +87,8 @@ export default function SignInScreen() {
 
   return (
     <SafeAreaView style={tw`flex-1 bg-white`}>
-      <ScrollView
-        contentContainerStyle={tw`px-6 pt-6 pb-6`}
-        keyboardShouldPersistTaps="handled"
-      >
-        {/* Logo */}
-        <Image
-          source={require("../assets/images/dropX.png")}
-          style={tw`size-56 mx-auto`}
-          resizeMode="contain"
-        />
+      <ScrollView contentContainerStyle={tw`px-6 pt-6 pb-6`} keyboardShouldPersistTaps="handled">
+        <Image source={require("../assets/images/dropX.png")} style={tw`size-56 mx-auto`} resizeMode="contain" />
 
         <Text style={tw`text-2xl font-bold text-center text-black mb-2 -mt-16`}>
           Welcome Back 👋
@@ -114,39 +97,25 @@ export default function SignInScreen() {
           Sign in to your DropX account
         </Text>
 
-        {/* Role Selector */}
         <View style={tw`flex-row justify-center mb-6`}>
           <TouchableOpacity
             onPress={() => setUserType("driver")}
-            style={tw`flex-1 py-3 rounded-l-full border ${
-              userType === "driver" ? "bg-black" : "bg-gray-100"
-            }`}
+            style={tw`flex-1 py-3 rounded-l-full border ${userType === "driver" ? "bg-black" : "bg-gray-100"}`}
           >
-            <Text
-              style={tw`text-center ${
-                userType === "driver" ? "text-white font-bold" : "text-black"
-              }`}
-            >
+            <Text style={tw`text-center ${userType === "driver" ? "text-white font-bold" : "text-black"}`}>
               Login as Driver
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => setUserType("sender")}
-            style={tw`flex-1 py-3 rounded-r-full border ${
-              userType === "sender" ? "bg-black" : "bg-gray-100"
-            }`}
+            style={tw`flex-1 py-3 rounded-r-full border ${userType === "sender" ? "bg-black" : "bg-gray-100"}`}
           >
-            <Text
-              style={tw`text-center ${
-                userType === "sender" ? "text-white font-bold" : "text-black"
-              }`}
-            >
+            <Text style={tw`text-center ${userType === "sender" ? "text-white font-bold" : "text-black"}`}>
               Login as Sender
             </Text>
           </TouchableOpacity>
         </View>
 
-        {/* Email */}
         <TextInput
           placeholder="Email"
           keyboardType="email-address"
@@ -161,7 +130,6 @@ export default function SignInScreen() {
           <View style={tw`mb-3`} />
         )}
 
-        {/* Password */}
         <TextInput
           placeholder="Password"
           secureTextEntry
@@ -175,11 +143,7 @@ export default function SignInScreen() {
           <View style={tw`mb-3`} />
         )}
 
-        {/* Remember Me */}
-        <TouchableOpacity
-          style={tw`flex-row items-center mb-4`}
-          onPress={() => setRememberMe(!rememberMe)}
-        >
+        <TouchableOpacity style={tw`flex-row items-center mb-4`} onPress={() => setRememberMe(!rememberMe)}>
           <View
             style={tw`w-5 h-5 mr-2 rounded border border-gray-400 items-center justify-center ${
               rememberMe ? "bg-black" : "bg-white"
@@ -191,7 +155,6 @@ export default function SignInScreen() {
         </TouchableOpacity>
       </ScrollView>
 
-      {/* Login Button */}
       <View style={tw`px-6 pb-6 -mt-20`}>
         <TouchableOpacity
           onPress={handleSubmit}
@@ -203,21 +166,16 @@ export default function SignInScreen() {
           {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={tw`text-white text-center font-bold text-base`}>
-              Login
-            </Text>
+            <Text style={tw`text-white text-center font-bold text-base`}>Login</Text>
           )}
         </TouchableOpacity>
       </View>
 
-      {/* Register Link */}
       <Text style={tw`text-sm text-gray-600 text-center pb-10`}>
         Don’t have an account?{" "}
         <Text
           onPress={() =>
-            router.replace(
-              userType === "driver" ? "/signupdriver" : "/signupsender"
-            )
+            router.replace(userType === "driver" ? "/signupdriver" : "/signupsender")
           }
           style={tw`text-black font-semibold`}
         >

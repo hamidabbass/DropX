@@ -52,4 +52,8 @@ export const routeTitles: Record<
     title: '',
     showBack: false,
   },
+  tabs: {
+    title: '',
+    showBack: false,
+  },
 };

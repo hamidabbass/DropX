@@ -6,16 +6,16 @@ import {
   TextInput,
   Alert,
   SafeAreaView,
-  ScrollView,
   Image,
-  KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import tw from "twrnc";
 import Icon from "react-native-vector-icons/Feather";
 import { useRouter } from "expo-router";
 import PhoneNumberInput from "@/components/common/PhoneInput";
 import { API_BASE_URL } from "@/config/api";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 export default function SignUpScreen() {
   const router = useRouter();
@@ -50,7 +50,6 @@ export default function SignUpScreen() {
 
   const validateFields = () => {
     const newErrors: any = {};
-
     if (!firstName.trim()) newErrors.firstName = "First name is required";
     if (!lastName.trim()) newErrors.lastName = "Last name is required";
     if (!email.trim()) {
@@ -61,17 +60,14 @@ export default function SignUpScreen() {
     }
     if (!phone.trim()) newErrors.phone = "Phone number is required";
     if (!address.trim()) newErrors.address = "Address is required";
-    if (!licenseNumber.trim())
-      newErrors.licenseNumber = "License number is required";
+    if (!licenseNumber.trim()) newErrors.licenseNumber = "License number is required";
     if (!password.trim()) {
       newErrors.password = "Password is required";
     } else if (password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
     }
     if (!agreed) newErrors.agreed = "You must accept the terms";
-
     setErrors(newErrors);
-
     return Object.keys(newErrors).length === 0;
   };
 
@@ -79,7 +75,6 @@ export default function SignUpScreen() {
     if (!validateFields()) return;
 
     const fullPhone = `${country.dial_code}${phone.replace(/\D/g, "")}`;
-
     const payload = {
       first_name: firstName,
       last_name: lastName,
@@ -91,42 +86,26 @@ export default function SignUpScreen() {
     };
 
     try {
-      const registerResponse = await fetch(
-        `${API_BASE_URL}/accounts/driver-register/`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
+      const registerResponse = await fetch(`${API_BASE_URL}/accounts/driver-register/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
       const registerData = await registerResponse.json();
+      if (!registerResponse.ok) throw new Error(registerData?.detail || "Registration failed.");
 
-      if (!registerResponse.ok) {
-        throw new Error(registerData?.detail || "Registration failed.");
-      }
-
-      // Auto login
-      const loginResponse = await fetch(
-        `${API_BASE_URL}/accounts/driver-login/`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const loginResponse = await fetch(`${API_BASE_URL}/accounts/driver-login/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
       const loginData = await loginResponse.json();
+      if (!loginResponse.ok) throw new Error(loginData?.detail || "Login failed.");
 
-      if (!loginResponse.ok) {
-        throw new Error(
-          loginData?.detail || "Login failed after registration."
-        );
-      }
-
-      // Optional: store token
-      // await AsyncStorage.setItem("accessToken", loginData.access);
-      // await AsyncStorage.setItem("refreshToken", loginData.refresh);
+      await AsyncStorage.setItem("access", loginData.access);
+      await AsyncStorage.setItem("refresh", loginData.refresh);
 
       Alert.alert("Success", "Account created and logged in!");
 
@@ -141,196 +120,143 @@ export default function SignUpScreen() {
         },
       });
     } catch (err: any) {
-      console.error("❌ Error:", err.message);
       Alert.alert("Error", err.message);
     }
   };
 
-  const isFormValid = () => {
-    return (
-      firstName &&
-      lastName &&
-      email &&
-      phone &&
-      address &&
-      licenseNumber &&
-      password.length >= 6 &&
-      agreed
-    );
-  };
-
   return (
     <SafeAreaView style={tw`flex-1 bg-white`}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={tw`flex-1`}
+      <KeyboardAwareScrollView
+        contentContainerStyle={tw`px-6 pb-10`}
+        extraScrollHeight={20}
+        enableOnAndroid={true}
+        keyboardShouldPersistTaps="handled"
       >
-        <ScrollView
-          contentContainerStyle={tw`px-6 pb-10 -mt-10`}
-          keyboardShouldPersistTaps="handled"
+        <Image
+          source={require("../assets/images/dropX.png")}
+          style={tw`size-56 mx-auto`}
+          resizeMode="contain"
+        />
+        <Text style={tw`text-xl font-bold text-center text-black mb-6 -mt-20`}>
+          Become a DropX Driver
+        </Text>
+
+        <TextInput
+          placeholder="First Name *"
+          value={firstName}
+          onChangeText={(text) => {
+            setFirstName(text);
+            if (errors.firstName) setErrors((prev) => ({ ...prev, firstName: "" }));
+          }}
+          style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}
+        />
+        {errors.firstName && <Text style={tw`text-red-500 text-xs mb-2`}>{errors.firstName}</Text>}
+
+        <TextInput
+          placeholder="Last Name *"
+          value={lastName}
+          onChangeText={(text) => {
+            setLastName(text);
+            if (errors.lastName) setErrors((prev) => ({ ...prev, lastName: "" }));
+          }}
+          style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}
+        />
+        {errors.lastName && <Text style={tw`text-red-500 text-xs mb-2`}>{errors.lastName}</Text>}
+
+        <TextInput
+          placeholder="Email *"
+          value={email}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          onChangeText={(text) => {
+            setEmail(text);
+            if (errors.email) setErrors((prev) => ({ ...prev, email: "" }));
+          }}
+          style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}
+        />
+        {errors.email && <Text style={tw`text-red-500 text-xs mb-2`}>{errors.email}</Text>}
+
+        <PhoneNumberInput
+          phone={phone}
+          setPhone={(text) => {
+            setPhone(text);
+            if (errors.phone) setErrors((prev) => ({ ...prev, phone: "" }));
+          }}
+          country={country}
+          setCountry={setCountry}
+          showPicker={showCountryPicker}
+          setShowPicker={setShowCountryPicker}
+        />
+        {errors.phone && <Text style={tw`text-red-500 text-xs mb-2`}>{errors.phone}</Text>}
+
+        <TextInput
+          placeholder="Address *"
+          value={address}
+          onChangeText={(text) => {
+            setAddress(text);
+            if (errors.address) setErrors((prev) => ({ ...prev, address: "" }));
+          }}
+          style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}
+        />
+        {errors.address && <Text style={tw`text-red-500 text-xs mb-2`}>{errors.address}</Text>}
+
+        <TextInput
+          placeholder="License Number *"
+          value={licenseNumber}
+          onChangeText={(text) => {
+            setLicenseNumber(text);
+            if (errors.licenseNumber) setErrors((prev) => ({ ...prev, licenseNumber: "" }));
+          }}
+          style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}
+        />
+        {errors.licenseNumber && (
+          <Text style={tw`text-red-500 text-xs mb-2`}>{errors.licenseNumber}</Text>
+        )}
+
+        <TextInput
+          placeholder="Password *"
+          secureTextEntry
+          value={password}
+          onChangeText={(text) => {
+            setPassword(text);
+            if (errors.password) setErrors((prev) => ({ ...prev, password: "" }));
+          }}
+          style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}
+        />
+        {errors.password && <Text style={tw`text-red-500 text-xs mb-2`}>{errors.password}</Text>}
+
+        <TouchableOpacity
+          style={tw`flex-row items-center mb-4`}
+          onPress={() => {
+            setAgreed(!agreed);
+            if (errors.agreed) setErrors((prev) => ({ ...prev, agreed: "" }));
+          }}
         >
-          <Image
-            source={require("../assets/images/dropX.png")}
-            style={tw`size-56 mx-auto`}
-            resizeMode="contain"
-          />
-          <Text
-            style={tw`text-xl font-bold text-center text-black mb-6 -mt-20`}
-          >
-            Become a DropX Driver
-          </Text>
-
-          <TextInput
-            placeholder="First Name *"
-            value={firstName}
-            onChangeText={(text) => {
-              setFirstName(text);
-              if (errors.firstName)
-                setErrors((prev) => ({ ...prev, firstName: "" }));
-            }}
-            style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}
-          />
-          {errors.firstName && (
-            <Text style={tw`text-red-500 text-xs mb-2`}>
-              {errors.firstName}
-            </Text>
-          )}
-
-          <TextInput
-            placeholder="Last Name *"
-            value={lastName}
-            onChangeText={(text) => {
-              setLastName(text);
-              if (errors.lastName)
-                setErrors((prev) => ({ ...prev, lastName: "" }));
-            }}
-            style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}
-          />
-          {errors.lastName && (
-            <Text style={tw`text-red-500 text-xs mb-2`}>{errors.lastName}</Text>
-          )}
-
-          <TextInput
-            placeholder="Email *"
-            value={email}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            onChangeText={(text) => {
-              setEmail(text);
-              if (errors.email) setErrors((prev) => ({ ...prev, email: "" }));
-            }}
-            style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}
-          />
-          {errors.email && (
-            <Text style={tw`text-red-500 text-xs mb-2`}>{errors.email}</Text>
-          )}
-
-          <PhoneNumberInput
-            phone={phone}
-            setPhone={(text) => {
-              setPhone(text);
-              if (errors.phone) setErrors((prev) => ({ ...prev, phone: "" }));
-            }}
-            country={country}
-            setCountry={setCountry}
-            showPicker={showCountryPicker}
-            setShowPicker={setShowCountryPicker}
-          />
-          {errors.phone && (
-            <Text style={tw`text-red-500 text-xs mb-2`}>{errors.phone}</Text>
-          )}
-
-          <TextInput
-            placeholder="Address *"
-            value={address}
-            onChangeText={(text) => {
-              setAddress(text);
-              if (errors.address)
-                setErrors((prev) => ({ ...prev, address: "" }));
-            }}
-            style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}
-          />
-          {errors.address && (
-            <Text style={tw`text-red-500 text-xs mb-2`}>{errors.address}</Text>
-          )}
-
-          <TextInput
-            placeholder="License Number *"
-            value={licenseNumber}
-            onChangeText={(text) => {
-              setLicenseNumber(text);
-              if (errors.licenseNumber)
-                setErrors((prev) => ({ ...prev, licenseNumber: "" }));
-            }}
-            style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}
-          />
-          {errors.licenseNumber && (
-            <Text style={tw`text-red-500 text-xs mb-2`}>
-              {errors.licenseNumber}
-            </Text>
-          )}
-
-          <TextInput
-            placeholder="Password *"
-            secureTextEntry
-            value={password}
-            onChangeText={(text) => {
-              setPassword(text);
-              if (errors.password)
-                setErrors((prev) => ({ ...prev, password: "" }));
-            }}
-            style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}
-          />
-          {errors.password && (
-            <Text style={tw`text-red-500 text-xs mb-2`}>{errors.password}</Text>
-          )}
-
-          <TouchableOpacity
-            style={tw`flex-row items-center mb-4`}
-            onPress={() => {
-              setAgreed(!agreed);
-              if (errors.agreed) setErrors((prev) => ({ ...prev, agreed: "" }));
-            }}
-          >
-            <View
-              style={tw`w-5 h-5 mr-2 rounded border border-gray-400 items-center justify-center ${
-                agreed ? "bg-black" : "bg-white"
-              }`}
-            >
-              {agreed && <Icon name="check" size={14} color="#fff" />}
-            </View>
-            <Text style={tw`text-sm text-gray-600`}>
-              I agree to{" "}
-              <Text style={tw`text-black font-semibold`}>
-                Terms & Conditions
-              </Text>
-            </Text>
-          </TouchableOpacity>
-          {errors.agreed && (
-            <Text style={tw`text-red-500 text-xs mb-2`}>{errors.agreed}</Text>
-          )}
-
-          <TouchableOpacity
-            onPress={handleSubmit}
-            disabled={!isFormValid()}
-            style={tw`py-4 rounded-full mb-6 ${
-              isFormValid() ? "bg-black" : "bg-gray-300"
+          <View
+            style={tw`w-5 h-5 mr-2 rounded border border-gray-400 items-center justify-center ${
+              agreed ? "bg-black" : "bg-white"
             }`}
           >
-            <Text style={tw`text-center text-white font-bold`}>Register</Text>
-          </TouchableOpacity>
-
-          <Text style={tw`text-sm text-gray-600 text-center`}>
-            Already have an account?{" "}
-            <Text
-              onPress={() => router.replace("/signin")}
-              style={tw`text-black font-semibold`}
-            >
-              Login
-            </Text>
+            {agreed && <Icon name="check" size={14} color="#fff" />}
+          </View>
+          <Text style={tw`text-sm text-gray-600`}>
+            I agree to{" "}
+            <Text style={tw`text-black font-semibold`}>Terms & Conditions</Text>
           </Text>
-        </ScrollView>
-      </KeyboardAvoidingView>
+        </TouchableOpacity>
+        {errors.agreed && <Text style={tw`text-red-500 text-xs mb-2`}>{errors.agreed}</Text>}
+
+        <TouchableOpacity onPress={handleSubmit} style={tw`py-4 rounded-full mb-6 bg-black`}>
+          <Text style={tw`text-center text-white font-bold`}>Register</Text>
+        </TouchableOpacity>
+
+        <Text style={tw`text-sm text-gray-600 text-center`}>
+          Already have an account?{" "}
+          <Text onPress={() => router.replace("/signin")} style={tw`text-black font-semibold`}>
+            Login
+          </Text>
+        </Text>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }

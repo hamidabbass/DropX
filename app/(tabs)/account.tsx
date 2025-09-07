@@ -1,5 +1,5 @@
-import PersonalInfo from '@/app/driverinfo';
+import LiveTrackingMapWithAvatar from '@/components/LiveTrackingMap';
 
 export default function HomeScreen() {
-  return <PersonalInfo />;
+  return <LiveTrackingMapWithAvatar />;
 }

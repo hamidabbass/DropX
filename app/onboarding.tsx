@@ -1,24 +1,29 @@
 import React from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Image, TouchableOpacity, Dimensions } from 'react-native';
 import tw from 'twrnc';
 import { router } from 'expo-router';
-import PaginationDots from "@/components/common/PaginationDots"
+import PaginationDots from "@/components/common/PaginationDots";
+
+const { height } = Dimensions.get("window");
+const IMAGE_HEIGHT = height * 0.65;
 
 export default function OnboardingScreen() {
   return (
-    <View style={tw`flex-1 bg-white items-center justify-between pt-10 pb-6`}>
+    <View style={tw`flex-1 bg-white items-center justify-between pb-6`}>
       
-      {/* Hero Image */}
-      {/* <Image
-        source={require('../assets/onboarding-map-phone.png')} // save image with this name
-        style={tw`w-72 h-96`}
-        resizeMode="contain"
-      /> */}
+      <Image
+        source={require('../assets/images/related-dropX.webp')}
+        style={{
+          width: "100%",
+          height: IMAGE_HEIGHT,
+          alignSelf: "center",
+        }}
+        resizeMode="cover" 
+      />
 
-      {/* Text Content */}
       <View style={tw`px-6 items-center`}>
         <Text style={tw`text-black text-xl font-bold text-center`}>
-          Welcome to DropX – Your Delivery, Your Way
+          Welcome to DropX – Your Delivery
         </Text>
         <Text style={tw`text-gray-600 text-sm text-center mt-2`}>
           Get ready to experience hassle-free transportation. We've got everything you need to deliver with ease. Let’s get started!
@@ -37,7 +42,7 @@ export default function OnboardingScreen() {
 
         <TouchableOpacity
           style={tw`flex-1 bg-black py-3 rounded-xl ml-2`}
-          onPress={() => router.replace('/onboarding2')} // Next screen
+          onPress={() => router.replace('/onboarding2')}
         >
           <Text style={tw`text-center text-white font-semibold`}>Continue</Text>
         </TouchableOpacity>

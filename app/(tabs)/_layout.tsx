@@ -48,7 +48,7 @@ export default function TabLayout() {
     <>
       <Tabs
         screenOptions={{
-          tabBarStyle: { display: 'none' }, // Hide default tab bar
+          tabBarStyle: { display: 'none' }, 
           headerShown: false,
         }}
       >
@@ -56,7 +56,6 @@ export default function TabLayout() {
         <Tabs.Screen name="activity" />
         <Tabs.Screen name="promos" />
         <Tabs.Screen name="account" />
-        <Tabs.Screen name="more" />
       </Tabs>
       <CustomTabBar />
     </>

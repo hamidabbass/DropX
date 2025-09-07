@@ -114,8 +114,13 @@ export default function SignUpScreen() {
 
       Alert.alert("Success", "You’ve registered successfully!");
       router.push({
-        pathname: "/personalinfo",
-        params: { phone: fullPhoneNumber },
+        pathname: "/senderinfo",
+        params: {
+          fullName: `${firstName} ${lastName}`,
+          email,
+          phone: fullPhoneNumber,
+          address,
+        },
       });
     } catch (error: any) {
       Alert.alert(

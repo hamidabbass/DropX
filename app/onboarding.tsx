@@ -2,7 +2,7 @@
 import PaginationDots from "@/components/common/PaginationDots";
 import { router } from 'expo-router';
 import React, { useRef, useState } from 'react';
-import { Dimensions, FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
 import tw from 'twrnc';
 
 const { width } = Dimensions.get('window');
@@ -11,17 +11,17 @@ const onboardingData = [
   {
     title: 'Welcome to DropX – Your Delivery, Your Way',
     description: "Get ready to experience hassle-free transportation. We've got everything you need to deliver with ease. Let’s get started!",
-    // image: require('../assets/onboarding-map-phone.png'),
+    image: require('../assets/images/onboarding.webp'),
   },
   {
     title: 'Choose Your Delivery –\nTailored to Your Needs',
     description: 'Select your preferred mode of transportation – motorbike / scooter, or car – and order a ride with just a few taps.',
-    // image: require('../assets/onboarding-choose-ride.png'),
+    image: require('../assets/images/related-dropX.webp'),
   },
   {
     title: 'Secure Payments &\nSeamless Transactions',
     description: 'Say hello to convenience payments. Pay for your deliveries securely using DropX easypaisa, jazzcash or cash.',
-    // image: require('../assets/onboarding-payments.png'),
+    image: require('../assets/images/payment-image.webp'),
   },
 ];
 
@@ -35,7 +35,7 @@ export default function OnboardingScreen() {
         flatListRef.current.scrollToIndex({ index: activeIndex + 1 });
       }
     } else {
-      router.replace('/(tabs)/home');
+      router.replace('/auth');
     }
   };
 
@@ -50,7 +50,7 @@ export default function OnboardingScreen() {
   }).current;
 
   return (
-    <View style={tw`flex-1 bg-white pt-10 pb-6`}>
+    <View style={tw`flex-1 bg-white pb-6`}>
       <FlatList
         ref={flatListRef}
         data={onboardingData}
@@ -61,17 +61,21 @@ export default function OnboardingScreen() {
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
         renderItem={({ item }) => (
-          <View style={[tw`items-center justify-between`, { width }]}> 
+          <View style={[tw`items-center`, { width }]}> 
             {/* Hero Image */}
-            {/* <Image source={item.image} style={tw`w-72 h-96`} resizeMode="contain" /> */}
-            <View style={tw`px-6 items-center mt-10`}>
+            <Image
+              source={item.image}
+              style={{ width: width, height: Dimensions.get('window').height * 0.6 }}
+              resizeMode="cover"
+            />
+            <View style={tw`px-6 items-center mt-6`}>
               <Text style={tw`text-black text-xl font-bold text-center`}>{item.title}</Text>
-              <Text style={tw`text-gray-600 text-sm text-center mt-2`}>{item.description}</Text>
+              <Text style={tw`text-gray-600 text-sm text-center mt-2 mb-8j`}>{item.description}</Text>
+              <PaginationDots total={onboardingData.length} activeIndex={activeIndex} />
             </View>
           </View>
         )}
       />
-      <PaginationDots total={onboardingData.length} activeIndex={activeIndex} />
       {activeIndex === onboardingData.length - 1 ? (
         <View style={tw`w-full px-6 mt-6`}>
           <TouchableOpacity

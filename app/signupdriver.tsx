@@ -110,7 +110,7 @@ export default function SignUpScreen() {
       Alert.alert("Success", "Account created and logged in!");
 
       router.push({
-        pathname: "/driverinfo",
+        pathname: "/DriverVerification",
         params: {
           fullName: `${firstName} ${lastName}`,
           email,
@@ -247,7 +247,7 @@ export default function SignUpScreen() {
         {errors.agreed && <Text style={tw`text-red-500 text-xs mb-2`}>{errors.agreed}</Text>}
 
         <TouchableOpacity onPress={handleSubmit} style={tw`py-4 rounded-full mb-6 bg-black`}>
-          <Text style={tw`text-center text-white font-bold`}>Register</Text>
+          <Text style={tw`text-center text-white font-bold`}>Next</Text>
         </TouchableOpacity>
 
         <Text style={tw`text-sm text-gray-600 text-center`}>

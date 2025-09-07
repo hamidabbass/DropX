@@ -1,15 +1,20 @@
-import { View, Text, TouchableOpacity } from 'react-native';
-import { useRouter, useSegments } from 'expo-router';
-import { useNavigation } from '@react-navigation/native';
-import { Feather } from '@expo/vector-icons';
-import tw from 'twrnc';
 import { routeTitles } from '@/utils/routeTitles';
+import { Feather } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { useRouter, useSegments } from 'expo-router';
+import { Text, TouchableOpacity, View } from 'react-native';
+import tw from 'twrnc';
 
 export default function HeaderBar() {
   const router = useRouter();
   const navigation = useNavigation();
   const segments = useSegments();
   const routeName = segments[segments.length - 1];
+
+  // Do not render header or get routeTitle for splash or onboarding screens
+  if (routeName === 'splash' || routeName === 'onboarding') {
+    return null;
+  }
 
   const config = routeTitles[routeName] || { title: '', showBack: true };
 
@@ -24,7 +29,7 @@ export default function HeaderBar() {
   };
 
   return (
-    <View style={tw`pt-10 pb-4 px-5  flex-row items-center border-b-[0.5px] border-gray-400`}>
+    <View style={tw`py-4 px-5 flex-row items-center border-b-[0.5px] border-gray-400 bg-white`}>
       {config.showBack && (
         <TouchableOpacity onPress={handleBack}>
           <Feather name="arrow-left" size={24} color="#000" />

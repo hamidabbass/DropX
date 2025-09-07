@@ -1,36 +1,62 @@
-import { Tabs } from 'expo-router';
-import { View, Text, TouchableOpacity } from 'react-native';
+import PersonalInfo from '@/app/driverinfo';
+import LiveTrackingMapWithAvatar from '@/components/LiveTrackingMap';
 import { FontAwesome } from '@expo/vector-icons';
-import { useRouter, usePathname } from 'expo-router';
+import { useState } from 'react';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import tw from 'twrnc';
 
-export default function TabLayout() {
-  const router = useRouter();
-  const pathname = usePathname();
+function Promos() {
+  return <View style={tw`flex-1 items-center justify-center`}><Text>Promos Page</Text></View>;
+}
+function Activity() {
+  return <View style={tw`flex-1 items-center justify-center`}><Text>Activity Page</Text></View>;
+}
+function Account() {
+  return <PersonalInfo />;
+}
 
-  const tabs = [
-    { name: 'home', icon: 'home', label: 'Home', route: '/home' },
-    { name: 'promos', icon: 'refresh', label: 'Promos', route: '/promos' },
-    { name: 'activity', icon: 'file-text-o', label: 'Activity', route: '/activity' },
-    { name: 'account', icon: 'user-o', label: 'Account', route: '/account' },
+const tabComponents = {
+  home: <LiveTrackingMapWithAvatar />,
+  promos: <Promos />,
+  activity: <Activity />,
+  account: (
+    <ScrollView style={tw`flex-1 bg-white`} contentContainerStyle={tw`pb-24`}>
+      <Account />
+    </ScrollView>
+  ),
+};
+
+type TabName = 'home' | 'promos' | 'activity' | 'account';
+export default function TabLayout() {
+  const [activeTab, setActiveTab] = useState<TabName>('home');
+  const tabs: {
+    name: TabName;
+    icon: React.ComponentProps<typeof FontAwesome>['name'];
+    label: string;
+  }[] = [
+    { name: 'home', icon: 'home', label: 'Home' },
+    { name: 'promos', icon: 'refresh', label: 'Promos' },
+    { name: 'activity', icon: 'file-text-o', label: 'Activity' },
+    { name: 'account', icon: 'user-o', label: 'Account' },
   ];
 
-  const CustomTabBar = () => {
-    return (
-      <View style={tw`absolute bottom-5 left-5 right-5 h-[70px] bg-black rounded-[35px] flex-row items-center justify-around shadow-lg`}>
+  const CustomTabBar = () => (
+    <>
+      {/* White background behind the tab bar to cover bottom content */}
+      <View style={tw`absolute left-0 right-0 bottom-0 h-24 bg-white z-0`} pointerEvents="none" />
+      <View style={tw`absolute bottom-4 left-5 right-5 h-[70px] bg-black rounded-[35px] flex-row items-center justify-around shadow-lg z-10`}>
         {tabs.map((tab) => {
-          const isActive = pathname === tab.route || (pathname === '/' && tab.name === 'home');
-          
+          const isActive = activeTab === tab.name;
           return (
             <TouchableOpacity
               key={tab.name}
-              onPress={() => router.push(tab.route)}
+              onPress={() => setActiveTab(tab.name)}
               style={tw`${isActive ? 'flex-row' : 'flex-col'} items-center justify-center px-${isActive ? '4' : '3'} py-2 ${isActive ? 'bg-white' : 'bg-transparent'} rounded-3xl ${isActive ? 'min-w-[100px]' : 'min-w-[40px]'} h-[44px] ${isActive ? 'gap-1' : 'gap-0'}`}
             >
-              <FontAwesome 
-                name={tab.icon} 
-                size={28} 
-                color={isActive ? '#000000' : '#ffffff'} 
+              <FontAwesome
+                name={tab.icon}
+                size={28}
+                color={isActive ? '#000000' : '#ffffff'}
               />
               {isActive && (
                 <Text style={tw`text-black text-sm font-semibold`}>
@@ -41,23 +67,13 @@ export default function TabLayout() {
           );
         })}
       </View>
-    );
-  };
+    </>
+  );
 
   return (
-    <>
-      <Tabs
-        screenOptions={{
-          tabBarStyle: { display: 'none' }, 
-          headerShown: false,
-        }}
-      >
-        <Tabs.Screen name="home" />
-        <Tabs.Screen name="activity" />
-        <Tabs.Screen name="promos" />
-        <Tabs.Screen name="account" />
-      </Tabs>
+    <View style={tw`flex-1 bg-white`}>
+      {tabComponents[activeTab]}
       <CustomTabBar />
-    </>
+    </View>
   );
 }

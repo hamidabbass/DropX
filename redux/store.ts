@@ -1,9 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit';
+
 import authReducer from './authReducer';
+import driverAuthReducer from './driverAuthReducer';
+import driverVerificationReducer from './driverVerificationReducer';
 
 export const store = configureStore({
   reducer: {
-    auth: authReducer,
+  auth: authReducer,
+  driverVerification: driverVerificationReducer,
+  driverAuth: driverAuthReducer,
   },
 });
 

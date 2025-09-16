@@ -1,13 +1,14 @@
 import React from "react";
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import tw from "twrnc";
+import { CountryPicker } from "react-native-country-codes-picker";
 import Icon from "react-native-vector-icons/Feather";
-import { CountryItem, CountryPicker } from "react-native-country-codes-picker";
+import tw from "twrnc";
+import type { CountryItem } from "../../types/CountryItem";
 
 type Props = {
   phone: string;

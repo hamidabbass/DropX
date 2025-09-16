@@ -1,21 +1,22 @@
+import PhoneNumberInput from "@/components/common/PhoneInput";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
   Alert,
-  SafeAreaView,
   Image,
-  Platform,
+  SafeAreaView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import tw from "twrnc";
-import Icon from "react-native-vector-icons/Feather";
-import { useRouter } from "expo-router";
-import PhoneNumberInput from "@/components/common/PhoneInput";
-import { API_BASE_URL } from "@/config/api";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import Icon from "react-native-vector-icons/Feather";
+import tw from "twrnc";
+import { useAppDispatch, useAppSelector } from "../hooks/reduxHooks";
+import { loginDriver, registerDriver } from "../redux/driverAuthActions";
+import type { CountryItem } from "../types/CountryItem";
 
 export default function SignUpScreen() {
   const router = useRouter();
@@ -41,7 +42,7 @@ export default function SignUpScreen() {
   });
 
   const [showCountryPicker, setShowCountryPicker] = useState(false);
-  const [country, setCountry] = useState({
+  const [country, setCountry] = useState<CountryItem>({
     code: "PK",
     dial_code: "+92",
     flag: "🇵🇰",
@@ -71,6 +72,9 @@ export default function SignUpScreen() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const dispatch = useAppDispatch();
+  const { isLoading, error, loginData } = useAppSelector((state) => state.driverAuth);
+
   const handleSubmit = async () => {
     if (!validateFields()) return;
 
@@ -86,26 +90,11 @@ export default function SignUpScreen() {
     };
 
     try {
-      const registerResponse = await fetch(`${API_BASE_URL}/accounts/driver-register/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const registerResult = await dispatch(registerDriver(payload)).unwrap();
+      const loginResult = await dispatch(loginDriver({ email, password })).unwrap();
 
-      const registerData = await registerResponse.json();
-      if (!registerResponse.ok) throw new Error(registerData?.detail || "Registration failed.");
-
-      const loginResponse = await fetch(`${API_BASE_URL}/accounts/driver-login/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const loginData = await loginResponse.json();
-      if (!loginResponse.ok) throw new Error(loginData?.detail || "Login failed.");
-
-      await AsyncStorage.setItem("access", loginData.access);
-      await AsyncStorage.setItem("refresh", loginData.refresh);
+      await AsyncStorage.setItem("access", loginResult.access);
+      await AsyncStorage.setItem("refresh", loginResult.refresh);
 
       Alert.alert("Success", "Account created and logged in!");
 
@@ -246,9 +235,13 @@ export default function SignUpScreen() {
         </TouchableOpacity>
         {errors.agreed && <Text style={tw`text-red-500 text-xs mb-2`}>{errors.agreed}</Text>}
 
-        <TouchableOpacity onPress={handleSubmit} style={tw`py-4 rounded-full mb-6 bg-black`}>
-          <Text style={tw`text-center text-white font-bold`}>Next</Text>
+
+        <TouchableOpacity onPress={handleSubmit} style={tw`py-4 rounded-full mb-6 bg-black ${isLoading ? 'opacity-50' : ''}`}
+          disabled={isLoading}
+        >
+          <Text style={tw`text-center text-white font-bold`}>{isLoading ? 'Processing...' : 'Next'}</Text>
         </TouchableOpacity>
+        {error && <Text style={tw`text-red-500 text-center mb-2`}>{error}</Text>}
 
         <Text style={tw`text-sm text-gray-600 text-center`}>
           Already have an account?{" "}

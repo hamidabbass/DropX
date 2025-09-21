@@ -1,4 +1,5 @@
 import RideOptionsScreen from "@/app/RideOptionsScreen";
+import VehicleDetails from "@/app/VehicleDetails";
 
 export type RoutePath =
   | '/onboarding'
@@ -65,6 +66,10 @@ export const routeTitles: Record<
     showBack: false,
   },
   tabs: {
+    title: '',
+    showBack: false,
+  },
+  VehicleDetails: {
     title: '',
     showBack: false,
   },

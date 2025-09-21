@@ -93,6 +93,13 @@ export default function SignUpScreen() {
       const registerResult = await dispatch(registerDriver(payload)).unwrap();
       const loginResult = await dispatch(loginDriver({ email, password })).unwrap();
 
+      // Ensure driver info is set in Redux for driverinfo page
+      dispatch(require("../redux/driverVehicleSlice").setDriverInfo({
+        name: `${firstName} ${lastName}`,
+        phone: fullPhone,
+        license: licenseNumber,
+      }));
+
       await AsyncStorage.setItem("access", loginResult.access);
       await AsyncStorage.setItem("refresh", loginResult.refresh);
 

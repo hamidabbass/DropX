@@ -6,6 +6,10 @@ import { useAppSelector } from "../hooks/reduxHooks";
 export default function DriverInfoScreen() {
   const driver = useAppSelector((state) => state.driverVehicle.driver);
   const vehicle = useAppSelector((state) => state.driverVehicle.vehicle);
+  // Fallback to registration and login data if not found in driver
+  const driverRegister = useAppSelector((state) => state.driverAuth.registerData);
+  const driverLogin = useAppSelector((state) => state.driverAuth.loginData);
+
   // Debug: show all driver info for troubleshooting
   // Remove after confirming fix
   // console.log('driver info:', driver);
@@ -34,13 +38,17 @@ export default function DriverInfoScreen() {
         {/* Driver Details */}
         <View style={tw`mb-6`}> 
           <Text style={tw`text-lg font-bold mb-1`}>Name:</Text>
-          <Text style={tw`text-base mb-2`}>{driver?.name || '-'}</Text>
+          <Text style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}>{driver?.name || '-'}</Text>
           <Text style={tw`text-lg font-bold mb-1`}>CNIC:</Text>
-          <Text style={tw`text-base mb-2`}>{driver?.cnic || '-'}</Text>
+          <Text style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}>{driver?.cnic || '-'}</Text>
           <Text style={tw`text-lg font-bold mb-1`}>Phone Number:</Text>
-          <Text style={tw`text-base mb-2`}>{driver?.phone || 'Not found in Redux. Check registration/login flow.'}</Text>
+          <Text style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}>
+            {driverRegister?.user.phone_number || 'Not found in Redux. Check registration/login flow.'}
+          </Text>
           <Text style={tw`text-lg font-bold mb-1`}>License Number:</Text>
-          <Text style={tw`text-base mb-2`}>{driver?.license || 'Not found in Redux. Check registration/login flow.'}</Text>
+            <Text style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}>
+              {driverRegister?.user?.license_number || 'Not found in Redux. Check registration/login flow.'}
+            </Text>
         </View>
         {/* Vehicle Details */}
         <View style={tw`mb-6`}>
@@ -48,26 +56,23 @@ export default function DriverInfoScreen() {
           {vehicle ? (
             <>
               <Text style={tw`text-lg font-bold mb-1`}>Type:</Text>
-              <Text style={tw`text-base mb-2`}>{vehicle.vehicle_type_name || '-'}</Text>
+              <Text style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}>{vehicle.vehicle_type_name || '-'}</Text>
               <Text style={tw`text-lg font-bold mb-1`}>Make:</Text>
-              <Text style={tw`text-base mb-2`}>{vehicle.make || '-'}</Text>
+              <Text style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}>{vehicle.make || '-'}</Text>
               <Text style={tw`text-lg font-bold mb-1`}>Model:</Text>
-              <Text style={tw`text-base mb-2`}>{vehicle.model || '-'}</Text>
+              <Text style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}>{vehicle.model || '-'}</Text>
               <Text style={tw`text-lg font-bold mb-1`}>Year:</Text>
-              <Text style={tw`text-base mb-2`}>{vehicle.year || '-'}</Text>
+              <Text style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}>{vehicle.year || '-'}</Text>
               <Text style={tw`text-lg font-bold mb-1`}>Number Plate:</Text>
-              <Text style={tw`text-base mb-2`}>{vehicle.number_plate || '-'}</Text>
+              <Text style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}>{vehicle.number_plate || '-'}</Text>
               <Text style={tw`text-lg font-bold mb-1`}>Color:</Text>
-              <Text style={tw`text-base mb-2`}>{vehicle.color || '-'}</Text>
+              <Text style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}>{vehicle.color || '-'}</Text>
               <Text style={tw`text-lg font-bold mb-1`}>Description:</Text>
-              <Text style={tw`text-base mb-2`}>{vehicle.description || '-'}</Text>
+              <Text style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}>{vehicle.description || '-'}</Text>
             </>
           ) : (
             <Text style={tw`text-base`}>No vehicle info available.</Text>
           )}
-        </View>
-        <View style={tw`mb-6`}>
-          <Text style={tw`text-red-500 text-xs mb-2`}>DEBUG: {JSON.stringify(driver)}</Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

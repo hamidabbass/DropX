@@ -2,18 +2,18 @@ import CustomHeader from "@/components/common/CustomHeader";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { store } from "@/redux/store";
 import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
+    DarkTheme,
+    DefaultTheme,
+    ThemeProvider,
 } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack, useSegments } from 'expo-router';
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 import {
-  SafeAreaProvider,
-  SafeAreaView,
-  useSafeAreaInsets,
+    SafeAreaProvider,
+    SafeAreaView,
+    useSafeAreaInsets,
 } from "react-native-safe-area-context";
 import { Provider } from "react-redux";
 
@@ -40,6 +40,7 @@ function AppWithSafeArea() {
           <Stack.Screen name="splash" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="+not-found" />
+          <Stack.Screen name="VehicleDetails" />
         </Stack>
         <StatusBar style="auto" />
       </SafeAreaView>

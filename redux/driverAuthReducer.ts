@@ -28,6 +28,22 @@ const driverAuthSlice = createSlice({
       .addCase(registerDriver.fulfilled, (state, action) => {
         state.isLoading = false;
         state.registerData = action.payload;
+        // Persist registration values to driverVehicle slice
+        // This requires importing setDriverInfo and store
+        try {
+          const { phone_number, license_number, first_name, last_name } = action.payload || {};
+          const name = [first_name, last_name].filter(Boolean).join(' ');
+          // Dynamically import to avoid circular dependency
+          const { setDriverInfo } = require('./driverVehicleSlice');
+          const { store } = require('./store');
+          store.dispatch(setDriverInfo({
+            name,
+            phone: phone_number || '',
+            license: license_number || '',
+          }));
+        } catch (e) {
+          // ignore
+        }
       })
       .addCase(registerDriver.rejected, (state, action) => {
         state.isLoading = false;

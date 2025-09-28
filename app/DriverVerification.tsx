@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
@@ -60,6 +61,8 @@ const DriverVerification: React.FC = () => {
       // Only persist photo to Redux if uploading driver image
       if (currentPicker === "driver") {
         dispatch(setDriverInfo({ photo: uri }));
+        // persist to storage for post-login hydration
+        try { await AsyncStorage.setItem('driverPhoto', uri); } catch {}
       }
       // Reset result so mustReupload is cleared and button is enabled
       dispatch({ type: 'driverVerification/clearPersistedVerification' });
@@ -122,6 +125,18 @@ const DriverVerification: React.FC = () => {
       dispatch({ type: 'driverVerification/clearPersistedVerification' });
     }
   }, [driverPhoto, cnicFront, dispatch]);
+
+  // Hydrate locally stored driver photo if redux lost it (e.g., after relogin) but screen is revisited
+  useEffect(() => {
+    (async () => {
+      if (!driverPhoto) {
+        try {
+          const stored = await AsyncStorage.getItem('driverPhoto');
+          if (stored) setDriverPhoto(stored);
+        } catch {}
+      }
+    })();
+  }, [driverPhoto]);
 
   return (
     <View style={tw`flex-1 bg-white`}>

@@ -15,60 +15,70 @@ export default function DriverInfoScreen() {
   const loginData = useAppSelector((state) => state.driverAuth.loginData);
   console.log("Driver Info Screen - driver:", vehicle, driver, driverRegister);
 
-  // Hydrate driver + vehicle info after login if missing
+  // Hydrate driver + vehicle + verification info after login if missing
   React.useEffect(() => {
     const hydrate = async () => {
       try {
-        if (driver && vehicle) return; // already loaded
+        // Even if vehicle exists, we might still need driver (cnic/photo) so don't early return just on vehicle
         const access = loginData?.access || (await AsyncStorage.getItem("access"));
         if (!access) return;
 
         const authHeader = { Authorization: `Bearer ${access}` } as const;
 
-        // Fetch vehicle (try to support array or single object responses)
-        try {
-          const vehicleRes = await fetch(`${API_BASE_URL}/vehicle/vehicles/`, {
-            headers: { ...authHeader },
-          });
-          if (vehicleRes.ok) {
-            const v = await vehicleRes.json();
-            const picked = Array.isArray(v) ? v[0] : v;
-            if (picked) dispatch(setVehicleInfo(picked));
-          }
-        } catch {}
-
-        // Fetch profile from a few likely endpoints; stop at first success
-        const candidates = [
-          `${API_BASE_URL}/accounts/me/`,
-          `${API_BASE_URL}/accounts/driver-profile/`,
-          `${API_BASE_URL}/accounts/profile/`,
-          `${API_BASE_URL}/accounts/driver/me/`,
-        ];
-        for (const url of candidates) {
+        // Fetch vehicle (try to support array or single object responses) only if not in state
+        if (!vehicle) {
           try {
-            const res = await fetch(url, { headers: { ...authHeader } });
-            if (!res.ok) continue;
-            const data = await res.json();
-            // Normalize various possible shapes
-            const first = data?.first_name || data?.firstName || data?.user?.first_name;
-            const last = data?.last_name || data?.lastName || data?.user?.last_name;
-            const name = [first, last].filter(Boolean).join(" ") || data?.full_name || data?.fullName || data?.name;
-            const phone = data?.phone_number || data?.phone || data?.user?.phone_number;
-            const license = data?.license_number || data?.license || data?.user?.license_number;
-            const cnic = data?.cnic || data?.cnic_number || data?.user?.cnic_number;
-            const photo = data?.photo || data?.avatar || data?.profile_picture || null;
-            dispatch(setDriverInfo({ name, phone, license, cnic, photo } as any));
-            break;
-          } catch {}
+            const vehicleRes = await fetch(`${API_BASE_URL}/vehicle/vehicles/`, {
+              headers: { ...authHeader },
+            });
+            if (vehicleRes.ok) {
+              const v = await vehicleRes.json();
+              const picked = Array.isArray(v) ? v[0] : v;
+              if (picked) dispatch(setVehicleInfo(picked));
+            }
+          } catch {
+            // ignore vehicle fetch errors for now
+          }
+        }
+
+        // Fetch verification info (CNIC + full name) if missing
+        if (!driver?.cnic || !driver?.name) {
+          try {
+            const verRes = await fetch(`${API_BASE_URL}/driver-verification/verifications/`, {
+              headers: { ...authHeader },
+            });
+            if (verRes.ok) {
+              const data = await verRes.json();
+              const record = Array.isArray(data) ? (data[data.length - 1] || data[0]) : data; // last (latest) fallback first
+              if (record) {
+                const full_name = record.full_name || record.name || driverRegister?.full_name;
+                const cnic_number = record.cnic_number || record.cnic;
+                if (full_name || cnic_number) {
+                  dispatch(setDriverInfo({
+                    name: full_name || driver?.name || "",
+                    cnic: cnic_number || driver?.cnic || "",
+                  }));
+                }
+              }
+            }
+          } catch {
+            // ignore verification fetch errors
+          }
+        }
+
+        // Attempt to hydrate photo from AsyncStorage if not present
+        if (!driver?.photo) {
+          const storedPhoto = await AsyncStorage.getItem('driverPhoto');
+            if (storedPhoto) {
+              dispatch(setDriverInfo({ photo: storedPhoto }));
+            }
         }
       } catch (e) {
         // noop
       }
     };
     hydrate();
-    // Only run when tokens/state change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loginData?.access]);
+  }, [loginData?.access, vehicle, driver?.cnic, driver?.name, driver?.photo]);
 
   return (
     <KeyboardAvoidingView

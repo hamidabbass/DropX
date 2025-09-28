@@ -1,23 +1,26 @@
+import { API_BASE_URL } from "@/config/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  TextInput,
-  Alert,
-  SafeAreaView,
-  ScrollView,
-  Image,
-  ActivityIndicator,
+    ActivityIndicator,
+    Alert,
+    Image,
+    SafeAreaView,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import tw from "twrnc";
 import Icon from "react-native-vector-icons/Feather";
-import { useRouter } from "expo-router";
-import { API_BASE_URL } from "@/config/api";
+import tw from "twrnc";
+import { useAppDispatch } from "../hooks/reduxHooks";
+import { loginDriver as loginDriverThunk } from "../redux/driverAuthActions";
 
 export default function SignInScreen() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -49,34 +52,32 @@ export default function SignInScreen() {
       return;
     }
 
-    const loginEndpoint =
-      userType === "driver"
-        ? `${API_BASE_URL}/accounts/driver-login/`
-        : `${API_BASE_URL}/accounts/sender-login/`;
-
     setLoading(true);
     try {
-      const response = await fetch(loginEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data?.detail || "Login failed");
+      if (userType === "driver") {
+        // Go through Redux so loginData is kept in state
+        const data = await dispatch(loginDriverThunk({ email, password })).unwrap();
+        await AsyncStorage.setItem("access", data.access);
+        await AsyncStorage.setItem("refresh", data.refresh);
+        await AsyncStorage.setItem("userType", userType);
+        console.log("✅ Access Token Stored:", data.access);
+        router.push("/(tabs)/home");
+      } else {
+        // Sender login: keep existing direct call for now
+        const loginEndpoint = `${API_BASE_URL}/accounts/sender-login/`;
+        const response = await fetch(loginEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data?.detail || "Login failed");
+        await AsyncStorage.setItem("access", data.access);
+        await AsyncStorage.setItem("refresh", data.refresh);
+        await AsyncStorage.setItem("userType", userType);
+        console.log("✅ Access Token Stored:", data.access);
+        router.push("/(tabs)/home");
       }
-
-      // ✅ Save JWT to AsyncStorage
-      await AsyncStorage.setItem("access", data.access);
-      await AsyncStorage.setItem("refresh", data.refresh);
-      await AsyncStorage.setItem("userType", userType);
-
-      console.log("✅ Access Token Stored:", data.access);
-
-      // ✅ Navigate only after storing tokens
-      router.push("/(tabs)/home");
     } catch (error: any) {
       console.error("Login error:", error.message);
       Alert.alert("Login Failed", error.message);

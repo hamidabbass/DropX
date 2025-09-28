@@ -28,6 +28,7 @@ export const createVehicle = createAsyncThunk(
         body: JSON.stringify(data),
       });
       const resData = await response.json();
+      console.log("Create Vehicle Response:", resData);
       if (!response.ok) throw new Error(resData?.detail || 'Vehicle creation failed');
       return resData;
     } catch (err: any) {

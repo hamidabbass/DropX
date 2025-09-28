@@ -1,18 +1,74 @@
+import { API_BASE_URL } from "@/config/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import React from "react";
 import { Image, KeyboardAvoidingView, Platform, ScrollView, Text, View } from "react-native";
 import tw from "twrnc";
-import { useAppSelector } from "../hooks/reduxHooks";
+import { useAppDispatch, useAppSelector } from "../hooks/reduxHooks";
+import { setDriverInfo, setVehicleInfo } from "../redux/driverVehicleSlice";
 
 export default function DriverInfoScreen() {
+  const dispatch = useAppDispatch();
   const driver = useAppSelector((state) => state.driverVehicle.driver);
   const vehicle = useAppSelector((state) => state.driverVehicle.vehicle);
   // Fallback to registration and login data if not found in driver
   const driverRegister = useAppSelector((state) => state.driverAuth.registerData);
-  const driverLogin = useAppSelector((state) => state.driverAuth.loginData);
+  const loginData = useAppSelector((state) => state.driverAuth.loginData);
+  console.log("Driver Info Screen - driver:", vehicle, driver, driverRegister);
 
-  // Debug: show all driver info for troubleshooting
-  // Remove after confirming fix
-  // console.log('driver info:', driver);
+  // Hydrate driver + vehicle info after login if missing
+  React.useEffect(() => {
+    const hydrate = async () => {
+      try {
+        if (driver && vehicle) return; // already loaded
+        const access = loginData?.access || (await AsyncStorage.getItem("access"));
+        if (!access) return;
+
+        const authHeader = { Authorization: `Bearer ${access}` } as const;
+
+        // Fetch vehicle (try to support array or single object responses)
+        try {
+          const vehicleRes = await fetch(`${API_BASE_URL}/vehicle/vehicles/`, {
+            headers: { ...authHeader },
+          });
+          if (vehicleRes.ok) {
+            const v = await vehicleRes.json();
+            const picked = Array.isArray(v) ? v[0] : v;
+            if (picked) dispatch(setVehicleInfo(picked));
+          }
+        } catch {}
+
+        // Fetch profile from a few likely endpoints; stop at first success
+        const candidates = [
+          `${API_BASE_URL}/accounts/me/`,
+          `${API_BASE_URL}/accounts/driver-profile/`,
+          `${API_BASE_URL}/accounts/profile/`,
+          `${API_BASE_URL}/accounts/driver/me/`,
+        ];
+        for (const url of candidates) {
+          try {
+            const res = await fetch(url, { headers: { ...authHeader } });
+            if (!res.ok) continue;
+            const data = await res.json();
+            // Normalize various possible shapes
+            const first = data?.first_name || data?.firstName || data?.user?.first_name;
+            const last = data?.last_name || data?.lastName || data?.user?.last_name;
+            const name = [first, last].filter(Boolean).join(" ") || data?.full_name || data?.fullName || data?.name;
+            const phone = data?.phone_number || data?.phone || data?.user?.phone_number;
+            const license = data?.license_number || data?.license || data?.user?.license_number;
+            const cnic = data?.cnic || data?.cnic_number || data?.user?.cnic_number;
+            const photo = data?.photo || data?.avatar || data?.profile_picture || null;
+            dispatch(setDriverInfo({ name, phone, license, cnic, photo } as any));
+            break;
+          } catch {}
+        }
+      } catch (e) {
+        // noop
+      }
+    };
+    hydrate();
+    // Only run when tokens/state change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loginData?.access]);
 
   return (
     <KeyboardAvoidingView
@@ -43,11 +99,11 @@ export default function DriverInfoScreen() {
           <Text style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}>{driver?.cnic || '-'}</Text>
           <Text style={tw`text-lg font-bold mb-1`}>Phone Number:</Text>
           <Text style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}>
-            {driverRegister?.user.phone_number || 'Not found in Redux. Check registration/login flow.'}
+            {driver?.phone || driverRegister?.phone_number || '—'}
           </Text>
           <Text style={tw`text-lg font-bold mb-1`}>License Number:</Text>
             <Text style={tw`border border-gray-300 rounded-lg p-3 mb-2.5`}>
-              {driverRegister?.user?.license_number || 'Not found in Redux. Check registration/login flow.'}
+              {driver?.license || driverRegister?.license_number || '—'}
             </Text>
         </View>
         {/* Vehicle Details */}
